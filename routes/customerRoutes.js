@@ -22,17 +22,14 @@ router.post('/', protect, async (req, res) => {
 router.get('/', protect, async (req, res) => {
   try {
     const customers = await Customer.find({});
-    const customersWithDecryptedPasswords = await Promise.all(customers.map(async (customer) => {
-      const isMatch = await bcrypt.compare(customer.password, customer.password);
-      return {
-        ...customer.toObject(),
-        password: isMatch ? customer.password : '******',
-      };
+    const customersWithPasswords = customers.map((customer) => ({
+      ...customer.toObject(),
+      password: customer.password, // Retorna a senha em texto simples
     }));
-    res.json(customersWithDecryptedPasswords); // Retorna a lista de clientes com senhas descriptografadas
+    res.json(customersWithPasswords);
   } catch (error) {
-    console.error("Erro ao buscar clientes:", error.message); // Log do erro
-    res.status(500).json({ message: error.message }); // Erro de servidor
+    console.error("Erro ao buscar clientes:", error.message);
+    res.status(500).json({ message: error.message });
   }
 });
 
